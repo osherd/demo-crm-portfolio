@@ -1,0 +1,103 @@
+name: demo-crm ci cd
+on:
+  push:
+    branches:
+      - main
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./demo-crm
+    steps:
+      #Checkout code (1)
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      #Build the application (2)
+      - name: Build the application
+        run: |
+          npm install  
+          npm run build  
+          npm run dev &
+
+      - name: wait for server to be upload
+        run: sleep 5
+
+      #Unit tests (3)
+      - name: Check application
+        run: curl http://localhost:3000
+
+      - name: Stop application
+        run: pkill -f "next dev" || echo "No process found"
+
+      #Package step (4)
+      - name: Build Docker image
+        run: |
+          docker build -t demo-crm:latest .
+
+      # Run E2E tests (5)
+      - name: Deploy testing environment
+        run: docker compose up -d
+      - name: Check running containers and existed images
+        run: |
+          docker ps -a
+          docker images
+      - name: wait application to be upload
+        run: |
+          sleep 5
+          # curl http://localhost:80
+
+      - name: Install Newman (Postman CLI)
+        run: npm install -g newman
+
+      - name: Run Postman API Tests
+        run: |
+          newman run ../postman-tests/demo-crm.postman_collection.json --reporters cli
+
+      - name: Remove testing environment
+        run: docker compose down -v
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.ECR_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.ECR_SECRET_KEY }}
+          aws-region: ap-south-1
+
+      - name: Authenticate Docker to AWS ECR
+        run: ${{ secrets.DOCKER_AUTENTICATES_AWS }}
+
+      - name: Tag Docker image
+        run: docker tag demo-crm:latest 390844757505.dkr.ecr.ap-south-1.amazonaws.com/development/demo-crm:v1.0.0
+
+      #Publish to ECR repository
+      - name: Push Docker image to ECR
+        run: docker push 390844757505.dkr.ecr.ap-south-1.amazonaws.com/development/demo-crm:v1.0.0
+
+  CD:
+    needs: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    defaults:
+      run:
+        working-directory: ./demo-crm
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.ECR_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.ECR_SECRET_KEY }}
+          aws-region: ap-south-1
+
+      - name: Update Kubernetes Deployment
+        run: |
+          aws eks --region ap-south-1 update-kubeconfig --name tamer-cluster
+          kubectl set image deployment/demo-crm-deployment demo-crm-container=390844757505.dkr.ecr.ap-south-1.amazonaws.com/development/demo-crm:v1.0.0
+          kubectl rollout status deployment/demo-crm-deployment
+          kubectl get pods
+          kubectl describe deployment demo-crm

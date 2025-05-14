@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "cb1354c3-0c2e-403e-b060-f4550053f71d",
+		"name": "demo-crm",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "26483615",
+		"_collection_link": "https://gold-capsule-86819.postman.co/workspace/My-Workspace~2fed9672-6aa5-4bd8-8f8d-49c562b80e6a/collection/26483615-cb1354c3-0c2e-403e-b060-f4550053f71d?action=share&source=collection_link&creator=26483615"
+	},
+	"item": [
+		{
+			"name": "Create Character",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id_\": 1,\n   \"name\": \"popo\",\n   \"email\": \"Koko.com\",\n   \"company\": \"Koko Dev\",\n   \"website\": \"https://Kokothegreat.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:80/api/clients"
+			},
+			"response": []
+		},
+		{
+			"name": "Confirm Creation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:80/api/clients"
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,57 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGODB_INITDB_DATABASE: demo_crmdb
+    volumes:
+      - mongodb_data:/usr/share/mongodb/data
+    networks:
+      - back_end
+
+  demo-crm:
+    image: demo-crm:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+      RABBITMQ_URI: ${RABBITMQ_URI}
+      LOG_LEVEL: ${LOG_LEVEL}
+      PERSISTENCE: ${PERSISTENCE}
+    networks:
+      - back_end
+      - front_end
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - '80:80'
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../nginx/logs.txt:/var/log/nginx/access.log
+      - ../nginx/errors.txt:/var/log/nginx/error.log
+    depends_on:
+      - demo-crm
+    networks:
+      - front_end
+
+networks:
+  front_end:
+    driver: bridge
+    name: front_end
+  back_end:
+    driver: bridge
+    name: back_end
+
+volumes:
+  mongodb_data:
+    driver: local
+    name: mongodb_data
