@@ -211,4 +211,6 @@ graph LR
     End_to_End_Tests --> Publish_Image_to_ECR
     Publish_Image_to_ECR --> Update_Kubernetes_Deployment_running_environment
 ```
-# demo-crm-portfolio
+
+> Project related repositories:
+> https://github.com/osherd/demo-crm-cluster-resources
