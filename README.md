@@ -213,4 +213,6 @@ graph LR
 ```
 
 > Project related repositories:
-> https://github.com/osherd/demo-crm-cluster-resources
+
+- https://github.com/osherd/demo-crm-cluster-resources
+- https://github.com/osherd/demo-crm-infrastructure
