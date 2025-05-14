@@ -59,22 +59,40 @@ jobs:
       - name: Remove testing environment
         run: docker compose down -v
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure GCP credentials
+        uses: google-github-actions/auth@v0
         with:
-          aws-access-key-id: ${{ secrets.ECR_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.ECR_SECRET_KEY }}
-          aws-region: ap-south-1
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          region: ${{ secrets.GCP_REGION }}
 
-      - name: Authenticate Docker to AWS ECR
-        run: ${{ secrets.DOCKER_AUTENTICATES_AWS }}
+      - name: Configure Docker to use GCP credentials
+        uses: docker/login-action@v2
+        with:
+          registry: gcr.io
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Configure Docker to use GCP credentials
+        uses: google-github-actions/docker@v0
+        with:
+          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          region: ${{ secrets.GCP_REGION }}
+      - name: Build Docker image
+        run: docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0 .
 
+      # Authenticate Docker to GCR
+      - name: Authenticate Docker to GCR
+        run: |
+          echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
+
+      # Tag Docker image
       - name: Tag Docker image
-        run: docker tag demo-crm:latest 390844757505.dkr.ecr.ap-south-1.amazonaws.com/development/demo-crm:v1.0.0
+        run: docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
 
-      #Publish to ECR repository
-      - name: Push Docker image to ECR
-        run: docker push 390844757505.dkr.ecr.ap-south-1.amazonaws.com/development/demo-crm:v1.0.0
+      # Publish to GCR repository
+      - name: Push Docker image to GCR
+        run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
 
   CD:
     needs: CI
@@ -87,17 +105,17 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure GCP credentials
+        uses: google-github-actions/auth@v0
         with:
-          aws-access-key-id: ${{ secrets.ECR_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.ECR_SECRET_KEY }}
-          aws-region: ap-south-1
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          region: ${{ secrets.GCP_REGION }}
 
       - name: Update Kubernetes Deployment
         run: |
-          aws eks --region ap-south-1 update-kubeconfig --name tamer-cluster
-          kubectl set image deployment/demo-crm-deployment demo-crm-container=390844757505.dkr.ecr.ap-south-1.amazonaws.com/development/demo-crm:v1.0.0
+          gcloud container clusters get-credentials demo-crm-cluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
+          kubectl set image deployment/demo-crm-deployment demo-crm-container=gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
           kubectl rollout status deployment/demo-crm-deployment
           kubectl get pods
           kubectl describe deployment demo-crm
