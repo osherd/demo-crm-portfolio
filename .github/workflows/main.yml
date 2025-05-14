@@ -1,8 +1,10 @@
-name: demo-crm ci cd
+name: demo-crm CI/CD
+
 on:
   push:
     branches:
       - main
+
 jobs:
   CI:
     runs-on: ubuntu-latest
@@ -11,86 +13,67 @@ jobs:
       run:
         working-directory: ./demo-crm
     steps:
-      #Checkout code (1)
-      - name: Check out code
-        uses: actions/checkout@v2
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      #Build the application (2)
-      - name: Build the application
+      # 2. Install dependencies and build
+      - name: Install dependencies and build
         run: |
-          npm install  
-          npm run build  
+          npm install
+          npm run build
           npm run dev &
 
-      - name: wait for server to be upload
+      - name: Wait for server to start
         run: sleep 5
 
-      #Unit tests (3)
-      - name: Check application
+      # 3. Basic smoke test
+      - name: Check application is running
         run: curl http://localhost:3000
 
-      - name: Stop application
+      - name: Stop development server
         run: pkill -f "next dev" || echo "No process found"
 
-      #Package step (4)
-      - name: Build Docker image
-        run: |
-          docker build -t demo-crm:latest .
+      # 4. Docker build for testing
+      - name: Build Docker image for local test
+        run: docker build -t demo-crm:latest .
 
-      # Run E2E tests (5)
-      - name: Deploy testing environment
+      # 5. Start Docker Compose for E2E tests
+      - name: Start testing environment
         run: docker compose up -d
-      - name: Check running containers and existed images
+
+      - name: Wait for containers
+        run: sleep 5
+
+      - name: Verify containers are running
         run: |
           docker ps -a
           docker images
-      - name: wait application to be upload
-        run: |
-          sleep 5
-          # curl http://localhost:80
 
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
-      - name: Run Postman API Tests
+      - name: Run Postman API tests
         run: |
           newman run ../postman-tests/demo-crm.postman_collection.json --reporters cli
 
-      - name: Remove testing environment
+      - name: Tear down testing environment
         run: docker compose down -v
 
-      - name: Configure GCP credentials
+      # 6. GCP Auth & Push to GCR
+      - name: Authenticate to GCP
         uses: google-github-actions/auth@v0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           region: ${{ secrets.GCP_REGION }}
 
-      - name: Configure Docker to use GCP credentials
-        uses: docker/login-action@v2
-        with:
-          registry: gcr.io
-          credentials: ${{ secrets.GCP_CREDENTIALS }}
-      - name: Configure Docker to use GCP credentials
-        uses: google-github-actions/docker@v0
-        with:
-          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
-          credentials: ${{ secrets.GCP_CREDENTIALS }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          region: ${{ secrets.GCP_REGION }}
-      - name: Build Docker image
+      - name: Build Docker image for GCR
         run: docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0 .
 
-      # Authenticate Docker to GCR
       - name: Authenticate Docker to GCR
-        run: |
-          echo ${{ secrets.GCP_CREDENTIALS }} | docker login -u _json_key --password-stdin https://gcr.io
+        run: echo "${{ secrets.GCP_CREDENTIALS }}" | docker login -u _json_key --password-stdin https://gcr.io
 
-      # Tag Docker image
-      - name: Tag Docker image
-        run: docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
-
-      # Publish to GCR repository
       - name: Push Docker image to GCR
         run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
 
@@ -102,10 +85,10 @@ jobs:
       run:
         working-directory: ./demo-crm
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Configure GCP credentials
+      - name: Authenticate to GCP
         uses: google-github-actions/auth@v0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
@@ -118,4 +101,3 @@ jobs:
           kubectl set image deployment/demo-crm-deployment demo-crm-container=gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
           kubectl rollout status deployment/demo-crm-deployment
           kubectl get pods
-          kubectl describe deployment demo-crm
