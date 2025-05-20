@@ -61,7 +61,9 @@ jobs:
 
       - name: Run Postman API tests
         run: |
-          newman run ../postman-tests/demo-crm.postman_collection.json --reporters cli
+          newman run ../postman-tests/demo-crm.postman_collection.json \
+            --env-var "baseUrl=http://localhost:3000" \
+            --reporters cli
 
       - name: Tear down testing environment
         run: docker compose down -v
