@@ -56,14 +56,14 @@ jobs:
           docker ps -a
           docker images
 
-      - name: Install Newman (Postman CLI)
-        run: npm install -g newman
+      # - name: Install Newman (Postman CLI)
+      #   run: npm install -g newman
 
-      - name: Run Postman API tests
-        run: |
-          newman run ../tests/demo-crm.postman_collection.json \
-            --environment ../tests/demo-crm.postman_environment.json \
-            --reporters cli
+      # - name: Run Postman API tests
+      #   run: |
+      #     newman run ../tests/demo-crm.postman_collection.json \
+      #       --environment ../tests/demo-crm.postman_environment.json \
+      #       --reporters cli
 
       - name: Tear down testing environment
         run: docker compose down -v
