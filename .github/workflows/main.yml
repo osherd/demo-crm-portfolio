@@ -55,41 +55,26 @@ jobs:
         run: |
           docker ps -a
           docker images
-          docker logs demo-crm
-          docker logs mongo
-      - name: Check application is running
-        run: curl http://localhost:3000
 
-      - name: Check MongoDB is running
+      - name: Install Newman (Postman CLI)
+        run: npm install -g newman
+
+      - name: Run Postman API tests
         run: |
-          docker exec -it mongo mongo --eval 'db.adminCommand("ping")'
-          docker exec -it mongo mongo --eval 'db.getCollection("users").find().pretty()'
-          docker exec -it mongo mongo --eval 'db.getCollection("products").find().pretty()'
-
-      # - name: Install Newman (Postman CLI)
-      #   run: npm install -g newman
-
-      # - name: Run Postman API tests
-      #   run: |
-      #     newman run ../postman-tests/demo-crm.postman_collection.json \
-      #       --env-var "baseUrl=http://localhost:3000" \
-      #       --reporters cli
+          newman run ./tests/demo-crm.postman_collection.json \
+            --environment ./tests/demo-crm.postman_environment.json \
+            --reporters cli
 
       - name: Tear down testing environment
         run: docker compose down -v
 
       # 6. GCP Auth & Push to GCR
-      # 1. Authenticate with GCP
-      - id: auth
-        uses: google-github-actions/auth@v2
+      - name: Authenticate to GCP
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          credentials_json: '${{ secrets.SERVICES_ACCOUNT_KEY }}'
-      # - name: Authenticate to GCP
-      #   uses: google-github-actions/setup-gcloud@v2
-      #   with:
-      #     credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
-      #     project_id: ${{ secrets.GCP_PROJECT_ID }}
-      #     export_default_credentials: true
+          credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
 
       - name: Build Docker image
         run: docker build -t ${IMAGE_NAME}:latest .
