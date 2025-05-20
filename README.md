@@ -1,6 +1,6 @@
-# 3-Tier Demo-Crm Application
+# Demo-Crm Application
 
-> A SaaS-based microservices application demonstrating DevOps best practices with CI/CD, Kubernetes, Terraform, and AWS infrastructure.
+> A SaaS microservices application showcasing DevOps best practices, including CI/CD pipelines, Kubernetes orchestration, Terraform infrastructure as code, and deployment on GCP.
 
 ## Table of Contents
 
@@ -16,17 +16,17 @@
 This project showcases a SaaS-based application deployed on AWS using Kubernetes, with CI/CD automation through GitHub Actions. The project emphasizes:
 Key features:
 
-- Cloud-based infrastructure (AWS with Terraform)
+- Cloud-based infrastructure (GCP with Terraform)
 - Microservices deployment using Kubernetes
 - CI/CD automation via GitHub Actions
 - Database integration with MongoDB
-- Containerization using Docker & ECR
+- Containerization using Docker & GCR
 
 ## Key Features
 
 - REST API-based application using Next.js/Node.js
 - Infrastructure as Code with Terraform
-- Kubernetes cluster setup with EKS
+- Kubernetes cluster setup with GKS
 - Helm-based service deployment
 - CI/CD workflows with automated testing & deployment
 
@@ -46,7 +46,7 @@ Key features:
 | Category             | Technologies            |
 | -------------------- | ----------------------- |
 | **Infrastructure**   | AWS, Terraform          |
-| **Containerization** | Docker, ECR             |
+| **Containerization** | Docker, GCR             |
 | **CI/CD**            | GitHub Actions          |
 | **Version Control**  | GitHub                  |
 | **Application**      | Next.js, Node.js, React |
@@ -74,7 +74,7 @@ Requirements for building and running the project:
 
 ```bash
 aws configure
-# set your Access Key & Secret Key or use AWS IAM
+# set your Access Key & Secret Key or use GCP IAM
 terraform init
 terraform plan
 terraform apply
