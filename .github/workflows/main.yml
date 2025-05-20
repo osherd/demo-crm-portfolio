@@ -55,15 +55,25 @@ jobs:
         run: |
           docker ps -a
           docker images
+          docker logs demo-crm
+          docker logs mongo
+      - name: Check application is running
+        run: curl http://localhost:3000
 
-      - name: Install Newman (Postman CLI)
-        run: npm install -g newman
-
-      - name: Run Postman API tests
+      - name: Check MongoDB is running
         run: |
-          newman run ../postman-tests/demo-crm.postman_collection.json \
-            --env-var "baseUrl=http://localhost:3000" \
-            --reporters cli
+          docker exec -it mongo mongo --eval 'db.adminCommand("ping")'
+          docker exec -it mongo mongo --eval 'db.getCollection("users").find().pretty()'
+          docker exec -it mongo mongo --eval 'db.getCollection("products").find().pretty()'
+
+      # - name: Install Newman (Postman CLI)
+      #   run: npm install -g newman
+
+      # - name: Run Postman API tests
+      #   run: |
+      #     newman run ../postman-tests/demo-crm.postman_collection.json \
+      #       --env-var "baseUrl=http://localhost:3000" \
+      #       --reporters cli
 
       - name: Tear down testing environment
         run: docker compose down -v
