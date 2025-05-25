@@ -38,14 +38,14 @@ Key features:
 
 ---
 
-**AWS infrastructure architecture Diagram**
-![Untitled Diagram drawio](https://github.com/user-attachments/assets/ea8a4010-5dba-40f2-87d6-22bedcf85c0b)
+**GCP infrastructure architecture Diagram**
+![Untitled Diagram drawio](https://github.com/osherd/demo-crm-portfolio/blob/main/assets/GCP%20infrastructure%20architecture%20Diagram.png)
 
 ## Technology Stack
 
 | Category             | Technologies            |
 | -------------------- | ----------------------- |
-| **Infrastructure**   | AWS, Terraform          |
+| **Infrastructure**   | GCP, Terraform          |
 | **Containerization** | Docker, GCR             |
 | **CI/CD**            | GitHub Actions          |
 | **Version Control**  | GitHub                  |
@@ -56,7 +56,7 @@ Key features:
 
 Requirements for building and running the project:
 
-- AWS CLI configured
+- GCP CLI configured
 - Terraform installed
 - Kubernetes CLI (kubectl) installed
 - Docker & Docker Compose installed
