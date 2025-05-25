@@ -34,7 +34,7 @@ Key features:
 
 **3-Tier application architecture Diagram**
 
-![Docker Diagram](https://github.com/user-attachments/assets/312e785e-46b9-4209-b0a1-60eb30704089)
+![Docker Diagram](https://github.com/osherd/demo-crm-portfolio/blob/main/assets/image.png)
 
 ---
 
@@ -78,7 +78,7 @@ aws configure
 terraform init
 terraform plan
 terraform apply
-# make sure to shoutdown Infrastructure when finish with :
+# make sure to shut down Infrastructure when finished with :
 terraform destroy
 ```
 
@@ -196,7 +196,7 @@ kubectl get all -n ingress
 kubectl get ingress -n ingress
 ```
 
-**Note: must setup a domain and DNS record that will point to our Ingress Controller’s singular Load Balancer service**
+**Note: must set up a domain and DNS record that will point to our Ingress Controller’s singular Load Balancer service**
 
 ## CI/CD Pipeline
 
@@ -212,7 +212,7 @@ graph LR
     Publish_Image_to_ECR --> Update_Kubernetes_Deployment_running_environment
 ```
 
-> Project related repositories:
+> Project-related repositories:
 
 - https://github.com/osherd/demo-crm-cluster-resources
 - https://github.com/osherd/demo-crm-infrastructure
