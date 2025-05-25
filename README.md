@@ -62,9 +62,9 @@ Requirements for building and running the project:
 - Docker & Docker Compose installed
 - Helm package manager installed
 
-**Note: Infrastructure file are in Infrastructure_Portfolio(Terraform)**
+**Note: Infrastructure files are in Infrastructure_Portfolio(Terraform)**
 
-**Note: Cluster Resources file for Deployment are in ClusterResources_Portfolio(K8s)**
+**Note: Cluster Resources file for Deployment is in ClusterResources_Portfolio(K8s)**
 
 ## Getting Started
 
