@@ -209,7 +209,7 @@ graph LR
     Unit_Testing  --> Package_Application
     Package_Application --> End_to_End_Tests
     End_to_End_Tests --> Publish_Image_to_ECR
-    Publish_Image_to_ECR --> Update_Kubernetes_Deployment_running_environment
+    Publish_Image_to_GCS(GCP) --> Update_Kubernetes_Deployment_running_environment
 ```
 
 > Project-related repositories:
