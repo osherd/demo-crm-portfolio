@@ -14,23 +14,11 @@ jobs:
     env:
       IMAGE_NAME: demo-crm
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      PROJECT: 'demo-crm'
-      REPO: 'demo-crm-portfolio'
-      REGION: ${{ secrets.REGION }}
     timeout-minutes: 5
     defaults:
       run:
         working-directory: ./demo-crm
     steps:
-      # 0. Setup Variables
-      - name: Set up environment variables
-        run: |
-          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
-          echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_ENV
-          echo "PROJECT=${PROJECT}" >> $GITHUB_ENV
-          echo "REPO=${REPO}" >> $GITHUB_ENV
-          echo "REGION=${REGION}" >> $GITHUB_ENV
-
       # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
