@@ -8,6 +8,9 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./demo-crm
     env:
       IMAGE_NAME: demo-crm
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
