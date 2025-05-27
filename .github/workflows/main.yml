@@ -79,9 +79,8 @@ jobs:
       - name: Build Docker image
         run: docker build -t ${IMAGE_NAME}:latest .
 
-      - name: Configure Docker Client
-        run: |-
-          gcloud auth configure-docker --quiet
+      - name: Authenticate Docker with gcr.io
+        run: gcloud auth configure-docker gcr.io
 
       - name: Push Docker image to container registry (GCR)
         env:
