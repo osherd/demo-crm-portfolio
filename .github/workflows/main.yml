@@ -57,7 +57,7 @@ jobs:
           docker images
 
       - name: Run API tests using api_mock_test
-        run: ../../api_mock_test.sh
+        run: ./api_mock_test.sh
 
       - name: Tear down testing environment
         run: docker compose down -v
