@@ -1,5 +1,4 @@
 name: demo-crm CI/CD
-
 on:
   push:
     branches:
@@ -61,7 +60,7 @@ jobs:
 
       - name: Run Postman API tests
         run: |
-          newman run ../tests/demo-crm.postman_collection.json \
+          newman run ../../tests/demo-crm.postman_collection.json \
             --environment ../tests/demo-crm.postman_environment.json \
             --reporters cli
 
