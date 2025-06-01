@@ -83,6 +83,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
+          install_components: 'gke-gcloud-auth-plugin'
           export_default_credentials: true
 
       - name: Build Docker image
@@ -96,11 +97,14 @@ jobs:
         env:
           GIT_TAG: v1.0.0
         run: |
-          gcloud auth print-access-token | sudo docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
-          docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
-          docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${GIT_TAG}
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${GIT_TAG}
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker build -t us-central1-docker.pkg.dev/$secrets.GCP_PROJECT_ID/demo-crm:latest .
+          docker push us-central1-docker.pkg.dev/$secrets.GCP_PROJECT_ID/demo-crm:latest
+
+    # docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
+    # docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${GIT_TAG}
+    # docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
+    # docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${GIT_TAG}
 
   CD:
     needs: CI
