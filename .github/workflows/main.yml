@@ -8,8 +8,14 @@ jobs:
   CI:
     runs-on: ubuntu-latest
     permissions:
-      contents: 'read'
-      id-token: 'write' # Needed for auth action
+      contents: read
+      id-token: write
+      pull-requests: write
+      actions: write
+      checks: write
+      deployments: write
+      issues: write
+      statuses: write
     env:
       IMAGE_NAME: demo-crm
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
