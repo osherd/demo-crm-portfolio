@@ -96,6 +96,7 @@ jobs:
         env:
           GIT_TAG: v1.0.0
         run: |
+          gcloud auth print-access-token | sudo docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
           docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
           docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${GIT_TAG}
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
