@@ -88,6 +88,9 @@ jobs:
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
           docker build -t gcloud auth configure-docker us-central1-docker.pkg.dev
+              # Set full image name
+          IMAGE=us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/demo-crm:latest
+
           -docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/demo-crm:latest .
           docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
 
