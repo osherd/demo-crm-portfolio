@@ -10,6 +10,7 @@ jobs:
     env:
       IMAGE_NAME: demo-crm
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
     timeout-minutes: 5
     defaults:
       run:
@@ -86,9 +87,9 @@ jobs:
         env:
           GIT_TAG: v1.0.0
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker build -t us-central1-docker.pkg.dev/concrete-fusion-460312-m9/demo-crm:latest .
-          docker push us-central1-docker.pkg.dev/concrete-fusion-460312-m9/demo-crm:latest
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/demo-crm:latest .
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
 
   CD:
     needs: CI
