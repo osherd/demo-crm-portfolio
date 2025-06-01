@@ -87,7 +87,7 @@ jobs:
           GIT_TAG: v1.0.0
         run: |
           # Authenticate Docker with Artifact Registry
-          gcloud auth configure-docker us-central1-docker.pkg.dev
+          gcloud auth configure-docker ${{secrets.GCP_REGION}}-docker.pkg.dev
 
           # Set full image name
           IMAGE=us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/demo-crm:latest
