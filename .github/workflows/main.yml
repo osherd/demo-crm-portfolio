@@ -98,8 +98,8 @@ jobs:
           GIT_TAG: v1.0.0
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker build -t us-central1-docker.pkg.dev/$secrets.GCP_PROJECT_ID/demo-crm:latest .
-          docker push us-central1-docker.pkg.dev/$secrets.GCP_PROJECT_ID/demo-crm:latest
+          docker build -t us-central1-docker.pkg.dev/concrete-fusion-460312-m9/demo-crm:latest .
+          docker push us-central1-docker.pkg.dev/concrete-fusion-460312-m9/demo-crm:latest
 
     # docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:latest
     # docker tag ${IMAGE_NAME}:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${GIT_TAG}
