@@ -86,8 +86,9 @@ jobs:
         env:
           GIT_TAG: v1.0.0
         run: |
-          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
-          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/demo-crm:latest .
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker build -t gcloud auth configure-docker us-central1-docker.pkg.dev
+          -docker.pkg.dev/${{secrets.GCP_PROJECT_ID}}/demo-crm:latest .
           docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
 
   CD:
