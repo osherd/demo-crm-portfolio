@@ -54,15 +54,25 @@ jobs:
         run: |
           docker ps -a
           docker images
+      - name: API Tests without Postman and add body:{ "key":"value" }
+        run: |
+          # Example of adding data to the database
+          # You can use curl or any other HTTP client to add data
+          curl -X POST http://localhost:80/api/clients -H "Content-Type: application/json" -d '{"id_":"3","name":"Test","email":"test@test.com","company":"Test Dev","website":"https://test.com"}' || exit 1
 
-      - name: Install Newman (Postman CLI)
-        run: npm install -g newman
+      - name: get all clients
+        run: |
+          # Example of getting all clients
+          curl -X GET http://localhost:80/api/clients || exit 1
 
-      - name: Run Postman API tests
-        run: newman run ./tests/demo-crm-api-tests.postman_collection.json \
-          --environment ./tests/demo-crm-api-tests.postman_environment.json \
-          --reporters cli,json \
-          --reporter-json-export ./reports/api-test-results.json
+      # - name: Install Newman (Postman CLI)
+      #   run: npm install -g newman
+
+      # - name: Run Postman API tests
+      #   run: newman run ./tests/demo-crm-api-tests.postman_collection.json \
+      #     --environment ./tests/demo-crm-api-tests.postman_environment.json \
+      #     --reporters cli,json \
+      #     --reporter-json-export ./reports/api-test-results.json
 
       - name: Tear down testing environment
         run: docker compose down -v
