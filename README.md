@@ -26,7 +26,7 @@ Key features:
 
 - REST API-based application using Next.js/Node.js
 - Infrastructure as Code with Terraform
-- Kubernetes cluster setup with GKS
+- Kubernetes cluster setup with GKS(EKS)
 - Helm-based service deployment
 - CI/CD workflows with automated testing & deployment
 
@@ -46,7 +46,7 @@ Key features:
 | Category             | Technologies            |
 | -------------------- | ----------------------- |
 | **Infrastructure**   | GCP, Terraform          |
-| **Containerization** | Docker, GCR             |
+| **Containerization** | Docker, GCR(EKS)        |
 | **CI/CD**            | GitHub Actions          |
 | **Version Control**  | GitHub                  |
 | **Application**      | Next.js, Node.js, React |
@@ -64,17 +64,25 @@ Requirements for building and running the project:
 
 **Note: Infrastructure files are in demo-crm-infrastructure(Terraform)**
 
-**Note: Cluster Resources file for Deployment is indemo-crm-cluster-resources(K8s)**
+**Note: Cluster Resources file for Deployment is in demo-crm-cluster-resources(K8s)**
 
 ## Getting Started
 
 ### Infrastructure Setup
 
-1. **Initialize Terraform & Configure GCP:**
+1. **Initialize Terraform & Authenticate with GCP:**
 
 ```bash
-gcp configure
-# set your Access Key & Secret Key or use GCP IAM
+
+# Authenticate steps
+gcloud auth application-default login
+gcloud config set project YOUR_PROJECT_ID # project id from GCP
+
+# Create a GCP Service Account
+# Generate Service Account Key
+
+# Terraform steps
+
 terraform init
 terraform plan
 terraform apply
@@ -87,7 +95,7 @@ terraform destroy
 2. **Configure a StorageClass - create volume in the cloud for MongoDB database**
 
 ```bash
-kubectl apply -f sc-ebs-csi-gp3.yaml
+kubectl apply -f storageclass-pd-balanced.yaml
 ```
 
 3. **Setup and Deploy MongoDB (using Helm)**
@@ -156,7 +164,7 @@ kubectl get sc
 7. **Deleting Storage Class**
 
 ```
-kubectl delete sc ebs-gp3
+kubectl delete sc storageclass-pd-balanced
 ```
 
 8. **Deleting Persistent Volume Claims (PVCs)**
