@@ -13,7 +13,7 @@
 
 ## Overview
 
-This project showcases a SaaS-based application deployed on AWS using Kubernetes, with CI/CD automation through GitHub Actions. The project emphasizes:
+This project showcases a SaaS-based application deployed on GCP using Kubernetes, with CI/CD automation through GitHub Actions. The project emphasizes:
 Key features:
 
 - Cloud-based infrastructure (GCP with Terraform)
@@ -70,10 +70,10 @@ Requirements for building and running the project:
 
 ### Infrastructure Setup
 
-1. **Initialize Terraform & Configure AWS:**
+1. **Initialize Terraform & Configure GCP:**
 
 ```bash
-aws configure
+gcp configure
 # set your Access Key & Secret Key or use GCP IAM
 terraform init
 terraform plan
