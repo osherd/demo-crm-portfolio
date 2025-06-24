@@ -10,16 +10,19 @@ services:
       - mongodb_data:/usr/share/mongodb/data
     networks:
       - back_end
+    healthcheck:
+      test: ['CMD', 'mongo', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   demo-crm:
     image: demo-crm:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    depends_on:
+      mongodb:
+        condition: service_healthy
     ports:
       - '3000:3000'
-    depends_on:
-      - mongodb
     environment:
       MONGODB_URI: ${MONGODB_URI}
       RABBITMQ_URI: ${RABBITMQ_URI}
