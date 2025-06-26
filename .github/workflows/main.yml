@@ -65,7 +65,6 @@ jobs:
       - name: Tear down testing environment
         run: docker compose down -v
 
-      # Authenticate to GCP using Workload Identity Federation (no service account key)
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
