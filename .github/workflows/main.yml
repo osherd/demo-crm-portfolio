@@ -11,7 +11,7 @@ jobs:
     env:
       IMAGE_NAME: demo-crm
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      GCP_REGION: ${{ secrets.GCP_REGION }}
+      GCP_REGION: ${{ secrets.GCP_PROJECT_GCP_REGION }}
     timeout-minutes: 5
     defaults:
       run:
@@ -76,7 +76,7 @@ jobs:
           export_default_credentials: true
 
       - name: Configure Docker for GCR
-        run: gcloud auth configure-docker gcr.io
+        run: gcloud auth configure-docker -quiet
 
       - name: Build Docker image for GCR
         run: docker build -t ${IMAGE_NAME}:${{ github.sha }} .
