@@ -82,9 +82,8 @@ jobs:
           gcloud auth configure-docker --quiet
 
       - name: Push Docker image to container registry (GCR)
-        env:
-          GIT_TAG: ${{ github.sha }}
         run: |
+          gcloud auth login
           gcloud auth configure-docker us-central1-docker.pkg.dev
           docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:${{ github.sha }} .
           docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:${{ github.sha }}
