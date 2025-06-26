@@ -68,7 +68,7 @@ jobs:
 
       # 6. GCP Auth & Push to GCR
       - name: Authenticate to GCP (Google Cloud Platform)
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
