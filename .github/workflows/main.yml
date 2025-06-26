@@ -76,25 +76,42 @@ jobs:
           install_components: 'gke-gcloud-auth-plugin'
           export_default_credentials: true
 
-      # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker build -t demo-crm:${{ github.sha}} .
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
-      - name: Configure Docker Client
-        run: |-
-          gcloud auth configure-docker --quiet
-
-      - name: Push Docker image to container registry (GCR)
+      - name: Build and Push Docker Image to Artifact Registry
         env:
-          GIT_TAG: v1.0.0
+          IMAGE_NAME: demo-crm
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker build -t gcloud auth configure-docker us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest .
+          docker buildx build . \
+            --platform linux/amd64 \
+            --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
+            --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
+            --push
 
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
+      # # Set up Docker Buildx
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+
+      # - name: Build Docker image
+      #   run: docker build -t demo-crm:${{ github.sha}} .
+
+      # - name: Configure Docker Client
+      #   run: |-
+      #     gcloud auth configure-docker --quiet
+
+      # - name: Push Docker image to container registry (GCR)
+      #   env:
+      #     GIT_TAG: v1.0.0
+      #   run: |
+      #     gcloud auth configure-docker us-central1-docker.pkg.dev
+      #     docietker build -t gcloud auth configure-docker us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest .
+
+      #     docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
 
   CD:
     needs: CI
