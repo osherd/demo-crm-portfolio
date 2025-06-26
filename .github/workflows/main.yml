@@ -67,7 +67,7 @@ jobs:
       - name: Tear down testing environment
         run: docker compose down -v
 
-      # 6. GCP Auth & Push to Container Registry (gcr.io)
+      # 6. GCP Auth & Push to Container Registry (gcr)
       - name: Authenticate to GCP (Google Cloud Platform)
         uses: google-github-actions/setup-gcloud@v2
         with:
