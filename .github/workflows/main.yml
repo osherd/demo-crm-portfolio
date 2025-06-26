@@ -81,7 +81,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build -t ${IMAGE_NAME}:latest .
+        run: docker build -t demo-crm:${{ github.sha}} .
 
       - name: Configure Docker Client
         run: |-
