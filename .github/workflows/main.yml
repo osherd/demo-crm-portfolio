@@ -75,17 +75,12 @@ jobs:
           export_default_credentials: true
 
       - name: Build Docker image
-        run: docker build -t ${IMAGE_NAME}:latest .
-
-      - name: Configure Docker Client
-        run: |-
-          gcloud auth configure-docker --quiet
+        run: docker build -t ${IMAGE_NAME}:${{ github.sha }} .
 
       - name: Push Docker image to container registry (GCR)
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:${{ github.sha }} .
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:${{ github.sha }}
+          docker tag ${IMAGE_NAME}:${{ github.sha }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:v1.0.0
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:v1.0.0
 
   CD:
     needs: CI
