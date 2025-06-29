@@ -87,10 +87,12 @@ jobs:
       # authenticate to GCR
       - name: Authenticate to GCR (Google Container Registry)
         run: |
-          echo "${{ secrets.SERVICES_ACCOUNT_KEY }}" | gcloud auth activate-service-account --key-file= ${{ secrets.SERVICES_ACCOUNT_KEY }}
-          gcloud auth configure-docker --quiet  
+          echo "${{ secrets.SERVICES_ACCOUNT_KEY }}" > "${RUNNER_TEMP}/gcloud-key.json"
+          gcloud auth activate-service-account --key-file="${RUNNER_TEMP}/gcloud-key.json"
+          gcloud auth configure-docker --quiet
 
-          # tag the image
+
+           # tag the image
       - name: Tag Docker image
         run: |
           docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
