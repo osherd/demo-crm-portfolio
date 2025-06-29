@@ -68,7 +68,7 @@ jobs:
         #  Configure Docker to use gcloud credentials
       - name: Configure Docker authentication
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       - name: Build Docker image
         run: |
