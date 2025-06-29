@@ -87,7 +87,8 @@ jobs:
           IMAGE_NAME: demo-crm
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-
+          # Authorize with a user account
+          gcloud auth login --no-launch-browser
           # Set active project and account (optional, but good for clarity)
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
