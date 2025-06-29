@@ -93,7 +93,7 @@ jobs:
             --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
             --push
 
-      # # Set up Docker Buildx
+      # # Set up Docker Buildx v2
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v3
 
