@@ -76,29 +76,32 @@ jobs:
           install_components: 'gke-gcloud-auth-plugin'
           export_default_credentials: true
 
+      # 7. Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       # Set up Docker Buildx v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker build -t demo-crm:${{ github.sha}} .
-
-      - name: Configure Docker Client
-        run: |-
-          gcloud auth configure-docker --quiet
-
-      - name: Push Docker image to container registry (GCR)
-        env:
-          GIT_TAG: v1.0.0
+      # authenticate to GCR
+      - name: Authenticate to GCR (Google Container Registry)
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker tag demo-crm:${{ github.sha }} us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
-          docker tag demo-crm:${{ github.sha }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
+          echo "${{ secrets.SERVICES_ACCOUNT_KEY }}" | gcloud auth activate-service-account --key-file= ${{ secrets.SERVICES_ACCOUNT_KEY }}
+          gcloud auth configure-docker --quiet  
+
+          # tag the image
+      - name: Tag Docker image
+        run: |
+          docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
+          docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
+          docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:dev
+      # 8. Push Docker image to GCR
+      - name: Push Docker image to GCR
+        run: |
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0
-          docker tag demo-crm:${{ github.sha }} us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:dev
 
   CD:
     needs: CI
