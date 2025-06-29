@@ -77,6 +77,8 @@ jobs:
       - name: Push Docker image
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          docker tag demo-crm:latest us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
+
            docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
       # # Set up Docker Buildx v2
       # - name: Set up Docker Buildx
