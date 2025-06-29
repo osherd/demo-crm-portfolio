@@ -87,12 +87,22 @@ jobs:
           IMAGE_NAME: demo-crm
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
+          # Authenticate with service account (if you're using one)
+           echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > key.json
+          gcloud auth activate-service-account --key-file=key.json
+
+          # Set active project and account (optional, but good for clarity)
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+           # Configure Docker to authenticate with Artifact Registry
           gcloud auth configure-docker us-central1-docker.pkg.dev
+
+          # Build and push multi-platform Docker image
           docker buildx build . \
-            --platform linux/amd64 \
-            --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
-            --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
-            --push
+          --platform linux/amd64 \
+          --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/${{ env.IMAGE_NAME }}:latest \
+          --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          --push
 
       # # Set up Docker Buildx v2
       # - name: Set up Docker Buildx
