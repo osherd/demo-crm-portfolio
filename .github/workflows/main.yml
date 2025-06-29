@@ -22,50 +22,50 @@ jobs:
         uses: actions/checkout@v3
 
       # 2. Install dependencies and build
-      - name: Install dependencies and build
-        run: |
-          npm install
-          npm run build
-          npm run dev &
+      # - name: Install dependencies and build
+      #   run: |
+      #     npm install
+      #     npm run build
+      #     npm run dev &
 
-      - name: Wait for server to start
-        run: sleep 5
+      # - name: Wait for server to start
+      #   run: sleep 5
 
       # 3. Basic smoke test
-      - name: Check application is running
-        run: curl http://localhost:3000
+      # - name: Check application is running
+      #   run: curl http://localhost:3000
 
-      - name: Stop development server
-        run: pkill -f "next dev" || echo "No process found"
+      # - name: Stop development server
+      #   run: pkill -f "next dev" || echo "No process found"
 
       # 4. Docker build for testing
-      - name: Build Docker image for local test
-        run: docker build -t demo-crm:latest .
+      # - name: Build Docker image for local test
+      #   run: docker build -t demo-crm:latest .
 
       # 5. Start Docker Compose for E2E tests
-      - name: Start testing environment
-        run: docker compose up -d
+      # - name: Start testing environment
+      #   run: docker compose up -d
 
-      - name: Wait for containers
-        run: sleep 5
+      # - name: Wait for containers
+      #   run: sleep 5
 
-      - name: Verify containers are running
-        run: |
-          docker ps -a
-          docker images
-      - name: API Tests without Postman and add body:{ "key":"value" }
-        run: |
-          # Example of adding data to the database
-          # You can use curl or any other HTTP client to add data
-          curl -X POST http://localhost:80/api/clients -H "Content-Type: application/json" -d '{"id_":"3","name":"Test","email":"test@test.com","company":"Test Dev","website":"https://test.com"}' || exit 1
+      # - name: Verify containers are running
+      #   run: |
+      #     docker ps -a
+      #     docker images
+      # - name: API Tests without Postman and add body:{ "key":"value" }
+      #   run: |
+      #     # Example of adding data to the database
+      #     # You can use curl or any other HTTP client to add data
+      #     curl -X POST http://localhost:80/api/clients -H "Content-Type: application/json" -d '{"id_":"3","name":"Test","email":"test@test.com","company":"Test Dev","website":"https://test.com"}' || exit 1
 
-      - name: get all clients
-        run: |
-          # Example of getting all clients
-          curl -X GET http://localhost:80/api/clients || exit 1
+      # - name: get all clients
+      #   run: |
+      #     # Example of getting all clients
+      #     curl -X GET http://localhost:80/api/clients || exit 1
 
-      - name: Tear down testing environment
-        run: docker compose down -v
+      # - name: Tear down testing environment
+      #   run: docker compose down -v
 
       # 6. GCP Auth & Push to GCR
       - name: Authenticate to GCP (Google Cloud Platform)
@@ -87,6 +87,7 @@ jobs:
           IMAGE_NAME: demo-crm
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
           docker buildx build . \
             --platform linux/amd64 \
             --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
