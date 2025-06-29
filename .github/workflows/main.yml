@@ -38,9 +38,9 @@ jobs:
       - name: Build Docker image
         run: |
           docker build . \
-            --file ./demo-crm/Dockerfile \
+            --file ./demo-crm-portfolio/demo-crm/Dockerfile \
             --tag ${{ env.GAR_PATH }}:${{ env.IMAGE_TAG }}
-        working-directory: ./demo-crm
+        working-directory: ./demo-crm-portfolio/demo-crm
 
       - name: Push Docker image
         run: docker push ${{ env.GAR_PATH }}:${{ env.IMAGE_TAG }}
