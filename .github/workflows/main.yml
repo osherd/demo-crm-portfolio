@@ -72,7 +72,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/demo-crm:latest .
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest .
 
       - name: Push Docker image
         run: |
