@@ -1,46 +1,145 @@
-name: Build and Push to Artifact Registry
+name: demo-crm CI/CD
 
 on:
   push:
-    branches: ['main']
-
-env:
-  PROJECT_ID: concrete-fusion-460312-m9
-  REGION: us-central1
-  REPOSITORY: demo-crm
-  IMAGE_NAME: demo-crm
-  IMAGE_TAG: latest
-  GAR_HOST: us-central1-docker.pkg.dev
-  GAR_PATH: us-central1-docker.pkg.dev/concrete-fusion-460312-m9/demo-crm/demo-crm
+    branches:
+      - main
 
 jobs:
-  build-push-artifact:
+  CI:
     runs-on: ubuntu-latest
-
+    env:
+      IMAGE_NAME: demo-crm
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./demo-crm
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: '${{ secrets.SERVICES_ACCOUNT_KEY }}'
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-
-      - name: Verify gcloud CLI
-        run: gcloud info
-
-      - name: Configure Docker to use Artifact Registry
-        run: gcloud auth configure-docker ${{ env.GAR_HOST }} --quiet
-
-      - name: Build Docker image
+      # 2. Install dependencies and build
+      - name: Install dependencies and build
         run: |
-          docker build . \
-            --file ./demo-crm-portfolio/demo-crm/Dockerfile \
-            --tag ${{ env.GAR_PATH }}:${{ env.IMAGE_TAG }}
-        working-directory: ./demo-crm-portfolio/demo-crm
+          npm install
+          npm run build
+          npm run dev &
 
-      - name: Push Docker image
-        run: docker push ${{ env.GAR_PATH }}:${{ env.IMAGE_TAG }}
+      - name: Wait for server to start
+        run: sleep 5
+
+      # 3. Basic smoke test
+      - name: Check application is running
+        run: curl http://localhost:3000
+
+      - name: Stop development server
+        run: pkill -f "next dev" || echo "No process found"
+
+      # 4. Docker build for testing
+      - name: Build Docker image for local test
+        run: docker build -t demo-crm:latest .
+
+      # 5. Start Docker Compose for E2E tests
+      - name: Start testing environment
+        run: docker compose up -d
+
+      - name: Wait for containers
+        run: sleep 5
+
+      - name: Verify containers are running
+        run: |
+          docker ps -a
+          docker images
+      - name: API Tests without Postman and add body:{ "key":"value" }
+        run: |
+          # Example of adding data to the database
+          # You can use curl or any other HTTP client to add data
+          curl -X POST http://localhost:80/api/clients -H "Content-Type: application/json" -d '{"id_":"3","name":"Test","email":"test@test.com","company":"Test Dev","website":"https://test.com"}' || exit 1
+
+      - name: get all clients
+        run: |
+          # Example of getting all clients
+          curl -X GET http://localhost:80/api/clients || exit 1
+
+      - name: Tear down testing environment
+        run: docker compose down -v
+
+      # 6. GCP Auth & Push to GCR
+      - name: Authenticate to GCP (Google Cloud Platform)
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          install_components: 'gke-gcloud-auth-plugin'
+          export_default_credentials: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build and Push Docker Image to Artifact Registry
+        env:
+          IMAGE_NAME: demo-crm
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+        run: |
+          docker buildx build . \
+            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/${{ env.IMAGE_NAME }}:latest \
+            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --push
+        # run: |
+        #   docker buildx build . \
+        #     --platform linux/amd64 \
+        #     --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
+        #     --tag us-central1-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
+        #     --push
+
+      # # Set up Docker Buildx v2
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+
+      # - name: Build Docker image
+      #   run: docker build -t demo-crm:${{ github.sha}} .
+
+      # - name: Configure Docker Client
+      #   run: |-
+      #     gcloud auth configure-docker --quiet
+
+      # - name: Push Docker image to container registry (GCR)
+      #   env:
+      #     GIT_TAG: v1.0.0
+      #   run: |
+      #     gcloud auth configure-docker us-central1-docker.pkg.dev
+      #     docietker build -t gcloud auth configure-docker us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest .
+
+      #     docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm:latest
+
+  CD:
+    needs: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    defaults:
+      run:
+        working-directory: ./demo-crm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - name: Update Kubernetes Deployment
+        run: |
+          gcloud container clusters get-credentials demo-crm-cluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
+          kubectl set image deployment/demo-crm-deployment demo-crm-container=gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
+          kubectl rollout status deployment/demo-crm-deployment
+          kubectl get pods
