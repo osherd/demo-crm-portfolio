@@ -96,11 +96,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Build multi-arch image with unique and latest tags (no push yet)
+          # Build multi-arch image with unique and latest tags
           docker buildx build . \
             --platform linux/amd64 \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
-            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
+            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$(./.github/scripts/git_update.sh -v patch | grep -oP '(?<=git-tag::).*$') \
             --output type=docker
 
           # Push the 'latest' tag
