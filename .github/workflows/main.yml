@@ -79,7 +79,6 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           install_components: 'gke-gcloud-auth-plugin'
-          export_default_credentials: true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
