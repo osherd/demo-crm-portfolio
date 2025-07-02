@@ -92,7 +92,7 @@ jobs:
           gcloud auth configure-docker --quiet
 
 
-           # tag the image
+        # tag the image
       - name: Tag Docker image
         run: |
           docker tag demo-crm:latest gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
