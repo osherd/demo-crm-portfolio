@@ -97,11 +97,19 @@ jobs:
           set -euo pipefail
 
           # Build multi-arch image with unique and latest tags
+          # Step 1: Tag the repo and get the new tag using the git_update.sh script
+          NEW_TAG=$(./scripts/git_update.sh -v patch | grep '::set-output name=git-tag::' | sed 's/.*::set-output name=git-tag:://')
+
+          # Step 2: Build the Docker image with both 'latest' and the new tag
           docker buildx build . \
             --platform linux/amd64 \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
-            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$(./.github/scripts/git_update.sh -v patch | grep -oP '(?<=git-tag::).*$') \
+            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG \
             --output type=docker
+
+          # Step 3: Push the images
+          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest
+          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG
 
           # Push the 'latest' tag
           docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest
