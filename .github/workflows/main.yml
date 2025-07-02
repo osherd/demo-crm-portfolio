@@ -87,7 +87,7 @@ jobs:
           IMAGE_NAME: demo-crm
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          gcloud config set project="${{ secrets.GCP_PROJECT_ID }}"
+          gcloud config set project="${{ secrets.SERVICES_ACCOUNT_KEY }}"
           gcloud auth list
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
