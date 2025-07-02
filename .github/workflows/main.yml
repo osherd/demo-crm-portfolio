@@ -102,7 +102,6 @@ jobs:
 
           # Step 2: Build the Docker image with both 'latest' and the new image tag
           docker buildx build . \
-            --platform linux/amd64 \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
