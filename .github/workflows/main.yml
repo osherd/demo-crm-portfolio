@@ -87,8 +87,6 @@ jobs:
           IMAGE_NAME: demo-crm
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          # Ensure gcloud is authenticated and an account is selected
-          gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS:-$GOOGLE_CLOUD_KEYFILE_JSON:-$GOOGLE_CLOUD_KEYFILE:-/github/workspace/gcloud.json}"
           gcloud config set project "${PROJECT_ID}"
           gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
