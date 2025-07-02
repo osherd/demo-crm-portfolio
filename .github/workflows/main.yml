@@ -100,7 +100,7 @@ jobs:
           # Step 1: Tag the repo and get the new tag using the git_update.sh script
           NEW_TAG=$(../scripts/git_update.sh -v patch | grep '::set-output name=git-tag::' | sed 's/.*::set-output name=git-tag:://')
 
-          # Step 2: Build the Docker image with both 'latest' and the new tag
+          # Step 2: Build the Docker image with both 'latest' and the new image tag
           docker buildx build . \
             --platform linux/amd64 \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
