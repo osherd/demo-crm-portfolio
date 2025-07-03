@@ -12,14 +12,14 @@ jobs:
       IMAGE_NAME: demo-crm
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
-    # timeout-minutes: 5
-    # defaults:
-    #   run:
-    #     working-directory: ./demo-crm
-    # steps:
-    #   # 1. Checkout repository
-    #   - name: Checkout repository
-    #     uses: actions/checkout@v3
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./demo-crm
+    steps:
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
     #   # 2. Install dependencies and build
     #   - name: Install dependencies and build
