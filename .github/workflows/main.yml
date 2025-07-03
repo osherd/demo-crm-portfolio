@@ -103,11 +103,11 @@ jobs:
           # Step 2: Build the Docker image with  new image tag
           docker buildx build . \
             --platform linux/amd64 \
-            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG \
+            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm-container/${IMAGE_NAME}:$NEW_TAG \
             --output type=docker
 
           # Step 3: Push the images
-          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG
+          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm-container/${IMAGE_NAME}:$NEW_TAG
 
         
   CD:
@@ -138,7 +138,7 @@ jobs:
           # Update the deployment with the new image
           kubectl set image deployment/demo-crm-deployment \
           demo-crm-container=$(kubectl get deployment demo-crm-deployment -o=jsonpath='{.spec.template.spec.containers[?(@.name=="demo-crm-container")].image}' | sed 's/.*://')
-          demo-crm-container=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/demo-crm:$demo-crm
+          demo-crm-container=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm-container/demo-crm-container:$demo-crm
           
           # Wait for rollout to complete
           kubectl rollout status deployment/demo-crm-deployment --timeout=300s
