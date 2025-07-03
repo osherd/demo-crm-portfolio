@@ -29,7 +29,7 @@ jobs:
           npm run dev &
 
       - name: Wait for server to start
-        run: sleep 5
+        run: until curl -s http://localhost:3000 > /dev/null; do sleep 1; done
 
       # 3. Basic smoke test
       - name: Check application is running
@@ -47,7 +47,7 @@ jobs:
         run: docker compose up -d
 
       - name: Wait for containers
-        run: sleep 5
+        run: until curl -s http://localhost:3000 > /dev/null; do sleep 1; done
 
       - name: Verify containers are running
         run: |
