@@ -10,6 +10,12 @@ services:
       - mongodb_data:/usr/share/mongodb/data
     networks:
       - back_end
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "admin", "--password", "password", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   demo-crm:
     image: demo-crm:latest
@@ -19,7 +25,8 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     environment:
       MONGODB_URI: ${MONGODB_URI}
       RABBITMQ_URI: ${RABBITMQ_URI}
