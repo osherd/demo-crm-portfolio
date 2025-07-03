@@ -139,8 +139,7 @@ jobs:
           # Configure kubectl to use the GKE cluster
           gcloud container clusters get-credentials demo-crm-cluster \
             --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
-            --impersonate-service-account=github-actions@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+            --project ${{ secrets.GCP_PROJECT_ID }}
           
           # Update the deployment with the new image
           kubectl set image deployment/demo-crm-deployment \
