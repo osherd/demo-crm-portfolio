@@ -21,102 +21,97 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-    #   # 2. Install dependencies and build
-    #   - name: Install dependencies and build
-    #     run: |
-    #       npm install
-    #       npm run build
-    #       npm run dev &
+      # 2. Install dependencies and build
+      - name: Install dependencies and build
+        run: |
+          npm install
+          npm run build
+          npm run dev &
 
-    #   - name: Wait for server to start
-    #     run: sleep 5
+      - name: Wait for server to start
+        run: sleep 5
 
-    #   # 3. Basic smoke test
-    #   - name: Check application is running
-    #     run: curl http://localhost:3000
+      # 3. Basic smoke test
+      - name: Check application is running
+        run: curl http://localhost:3000
 
-    #   - name: Stop development server
-    #     run: pkill -f "next dev" || echo "No process found"
+      - name: Stop development server
+        run: pkill -f "next dev" || echo "No process found"
 
-    #   # 4. Docker build for testing
-    #   - name: Build Docker image for local test
-    #     run: docker build -t demo-crm:latest .
+      # 4. Docker build for testing
+      - name: Build Docker image for local test
+        run: docker build -t demo-crm:latest .
 
-    #   # 5. Start Docker Compose for E2E tests
-    #   - name: Start testing environment
-    #     run: docker compose up -d
+      # 5. Start Docker Compose for E2E tests
+      - name: Start testing environment
+        run: docker compose up -d
 
-    #   - name: Wait for containers
-    #     run: sleep 5
+      - name: Wait for containers
+        run: sleep 5
 
-    #   - name: Verify containers are running
-    #     run: |
-    #       docker ps -a
-    #       docker images
-    #   - name: API Tests without Postman and add body:{ "key":"value" }
-    #     run: |
-    #       # Example of adding data to the database
-    #       # You can use curl or any other HTTP client to add data
-    #       curl -X POST http://localhost:80/api/clients -H "Content-Type: application/json" -d '{"id_":"3","name":"Test","email":"test@test.com","company":"Test Dev","website":"https://test.com"}' || exit 1
+      - name: Verify containers are running
+        run: |
+          docker ps -a
+          docker images
+      - name: API Tests without Postman and add body:{ "key":"value" }
+        run: |
+          # Example of adding data to the database
+          # You can use curl or any other HTTP client to add data
+          curl -X POST http://localhost:80/api/clients -H "Content-Type: application/json" -d '{"id_":"3","name":"Test","email":"test@test.com","company":"Test Dev","website":"https://test.com"}' || exit 1
 
-    #   - name: get all clients
-    #     run: |
-    #       # Example of getting all clients
-    #       curl -X GET http://localhost:80/api/clients || exit 1
+      - name: get all clients
+        run: |
+          # Example of getting all clients
+          curl -X GET http://localhost:80/api/clients || exit 1
 
-    #   - name: Tear down testing environment
-    #     run: docker compose down -v
+      - name: Tear down testing environment
+        run: docker compose down -v
 
-    #   # 6. GCP Auth & Push to GCR
-    #   - name: Authenticate to Google Cloud
-    #     id: auth
-    #     uses: google-github-actions/auth@v2
-    #     with:
-    #       credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
+      # 6. GCP Auth & Push to GCR
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.SERVICES_ACCOUNT_KEY }}
 
-    #   - name: Set up gcloud CLI
-    #     uses: google-github-actions/setup-gcloud@v2
-    #     with:
-    #       project_id: ${{ secrets.GCP_PROJECT_ID }}
-    #       install_components: 'gke-gcloud-auth-plugin'
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          install_components: 'gke-gcloud-auth-plugin'
 
-    #   - name: Set up Docker Buildx
-    #     uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    #   - name: Configure Docker for Artifact Registry
-    #     run: |
-    #       gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
-    #   - name: Build and Push Docker Image to Artifact Registry
-    #     env:
-    #       IMAGE_NAME: demo-crm
-    #       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-    #       GCP_REGION: ${{ secrets.GCP_REGION }}
-    #     run: |
-    #       set -euo pipefail
+      - name: Build and Push Docker Image to Artifact Registry
+        env:
+          IMAGE_NAME: demo-crm
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+        run: |
+          set -euo pipefail
 
-    #       # Build multi-arch image with unique and latest tags
-    #       # Step 1: Tag the repo and get the new tag using the git_update.sh script
-    #       chmod +x ../scripts/git_update.sh
-    #       NEW_TAG=$(../scripts/git_update.sh -v patch | grep '::set-output name=git-tag::' | sed 's/.*::set-output name=git-tag:://')
+          # Build multi-arch image with unique and latest tags
+          # Step 1: Tag the repo and get the new tag using the git_update.sh script
+          chmod +x ../scripts/git_update.sh
+          NEW_TAG=$(../scripts/git_update.sh -v patch | grep '::set-output name=git-tag::' | sed 's/.*::set-output name=git-tag:://')
 
-    #       # Step 2: Build the Docker image with both 'latest' and the new image tag
-    #       docker buildx build . \
-    #         --platform linux/amd64 \
-    #         --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest \
-    #         --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG \
-    #         --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
-    #         --output type=docker
+          # Step 2: Build the Docker image with both 'latest' and the new image tag
+          docker buildx build . \
+            --platform linux/amd64 \
+            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG \
+            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
+            --output type=docker
 
-    #       # Step 3: Push the images
-    #       docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest
-    #       docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG
+          # Step 3: Push the images
+          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG
 
-    #       # Push the 'latest' tag
-    #       docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:latest
-
-    #       # Push the unique tag (commit SHA)
-    #       docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }}
+          # Push the unique tag (commit SHA)
+          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }}
   CD:
     needs: CI
     runs-on: ubuntu-latest
