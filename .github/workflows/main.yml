@@ -137,7 +137,7 @@ jobs:
           
           # Update the deployment with the new image
           kubectl set image deployment/demo-crm-deployment \
-            demo-crm-container=gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
+          demo-crm-container=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-crm/demo-crm:$NEW_TAG
           
           # Wait for rollout to complete
           kubectl rollout status deployment/demo-crm-deployment --timeout=300s
