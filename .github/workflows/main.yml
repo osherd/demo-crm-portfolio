@@ -136,7 +136,18 @@ jobs:
 
       - name: Update Kubernetes Deployment
         run: |
-          gcloud container clusters get-credentials demo-crm-cluster --region ${{ secrets.GCP_REGION }} --project ${{ secrets.GCP_PROJECT_ID }}
-          kubectl set image deployment/demo-crm-deployment demo-crm-container=gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
-          kubectl rollout status deployment/demo-crm-deployment
-          kubectl get pods
+          # Configure kubectl to use the GKE cluster
+          gcloud container clusters get-credentials demo-crm-cluster \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --impersonate-service-account=github-actions@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+          
+          # Update the deployment with the new image
+          kubectl set image deployment/demo-crm-deployment \
+            demo-crm-container=gcr.io/${{ secrets.GCP_PROJECT_ID }}/demo-crm:v1.0.0
+          
+          # Wait for rollout to complete
+          kubectl rollout status deployment/demo-crm-deployment --timeout=300s
+          
+          # Verify pods are running
+          kubectl get pods -l app=demo-crm
