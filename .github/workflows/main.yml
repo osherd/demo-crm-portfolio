@@ -100,18 +100,16 @@ jobs:
           chmod +x ../scripts/git_update.sh
           NEW_TAG=$(../scripts/git_update.sh -v patch | grep '::set-output name=git-tag::' | sed 's/.*::set-output name=git-tag:://')
 
-          # Step 2: Build the Docker image with both 'latest' and the new image tag
+          # Step 2: Build the Docker image with  new image tag
           docker buildx build . \
             --platform linux/amd64 \
             --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG \
-            --tag $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }} \
             --output type=docker
 
           # Step 3: Push the images
           docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:$NEW_TAG
 
-          # Push the unique tag (commit SHA)
-          docker push $GCP_REGION-docker.pkg.dev/${PROJECT_ID}/demo-crm/${IMAGE_NAME}:${{ github.sha }}
+        
   CD:
     needs: CI
     runs-on: ubuntu-latest
